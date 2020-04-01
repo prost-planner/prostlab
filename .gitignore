@@ -1,0 +1,4 @@
+*~
+*.py[cod]
+dist/
+prostlab.egg-info/
