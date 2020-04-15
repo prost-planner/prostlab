@@ -18,6 +18,7 @@
 
 from prostlab.repeated_pattern_parser import RepeatedPatternParser
 
+
 def add_planner_time(content, props):
     try:
         props["total_time"] = props["parser_time"] + props["search_time"]
@@ -30,26 +31,42 @@ class ProstParser(RepeatedPatternParser):
         RepeatedPatternParser.__init__(self)
 
         self.add_pattern(
-            "parser_time", "PROST parser complete running time: (.+)\n", type=float, required=True
+            "parser_time",
+            "PROST parser complete running time: (.+)\n",
+            type=float,
+            required=True,
         )
 
         self.add_pattern(
-            "search_time", "PROST complete running time: (.+)\n", type=float, required=True
+            "search_time",
+            "PROST complete running time: (.+)\n",
+            type=float,
+            required=True,
         )
 
         self.add_function(add_planner_time)
 
         self.add_pattern(
-             "total_reward", ">>> END OF SESSION  -- TOTAL REWARD: (.+)\n", type=float, required=True
+            "total_reward",
+            ">>> END OF SESSION  -- TOTAL REWARD: (.+)\n",
+            type=float,
+            required=True,
         )
 
         self.add_pattern(
-            "average_reward", ">>> END OF SESSION  -- AVERAGE REWARD: (.+)\n", type=float, required=True
+            "average_reward",
+            ">>> END OF SESSION  -- AVERAGE REWARD: (.+)\n",
+            type=float,
+            required=True,
         )
 
         self.add_repeated_pattern(
-            "round_reward", ">>> END OF ROUND .* -- REWARD RECEIVED: (.+)\n", type=float, required=True
+            "round_reward",
+            ">>> END OF ROUND .* -- REWARD RECEIVED: (.+)\n",
+            type=float,
+            required=True,
         )
+
 
 def main():
     parser = ProstParser()

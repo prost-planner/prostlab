@@ -25,11 +25,13 @@ import re
 
 from lab.parser import Parser
 
+
 def _get_flags(flags_string):
     flags = 0
     for char in flags_string:
         flags |= getattr(re, char)
     return flags
+
 
 class RepeatedPatternParser(Parser):
     def add_repeated_pattern(self, name, regex, file="run.log", type=int, flags="M"):

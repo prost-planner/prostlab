@@ -25,16 +25,21 @@ from prostlab.cached_revision import CachedProstRevision
 from lab import tools
 from lab.experiment import Experiment, get_default_data_dir, Run
 
-#from benchmark_suites import *
+DIR = os.path.dirname(os.path.abspath(__file__))
+PARSERS_DIR = os.path.join(DIR, "parsers")
+
 
 def _get_planner_resource_name(cached_rev):
     return "prost_" + cached_rev.name
 
+
 def _get_server_resource_name(cached_rev):
     return "rddlsim_" + cached_rev.name
 
+
 def _get_wrapper_resource_name(cached_rev):
     return "wrapper_" + cached_rev.name
+
 
 class ProstRun(Run):
     """Conduct an experiment with a given Prost configuration on a given task.
@@ -132,6 +137,11 @@ class ProstExperiment(Experiment):
         >>> exp.add_fetcher(name='fetch')
 
     """
+
+    # Built-in parsers that can be passed to exp.add_parser().
+    PROST_PARSER = os.path.join(PARSERS_DIR, "prost-parser.py")
+    THTS_PARSER = os.path.join(PARSERS_DIR, "thts-parser.py")
+    IDS_PARSER = os.path.join(PARSERS_DIR, "ids-parser.py")
 
     def __init__(
         self,
