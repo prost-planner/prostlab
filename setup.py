@@ -25,7 +25,7 @@ setup(
         "Topic :: Scientific/Engineering",
     ],
     install_requires=[
-        "lab>=5.5",
+        "lab>=6.0",
     ],
     python_requires=">=3.5",
 )

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-#
 # Prost Lab uses the Lab package to conduct experiments with the
 # Prost planning system.
 #
