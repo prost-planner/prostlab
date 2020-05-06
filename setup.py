@@ -24,6 +24,6 @@ setup(
         "Programming Language :: Python :: 3",
         "Topic :: Scientific/Engineering",
     ],
-    install_requires=["lab>=6.0",],
+    install_requires=["lab==6.0",],
     python_requires=">=3.6",
 )

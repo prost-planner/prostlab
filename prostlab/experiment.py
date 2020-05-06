@@ -22,7 +22,6 @@ import os
 from collections import defaultdict, OrderedDict
 
 from prostlab.cached_revision import CachedProstRevision
-from lab import tools
 from lab.experiment import Experiment, get_default_data_dir, Run
 
 DIR = os.path.dirname(os.path.abspath(__file__))
@@ -122,19 +121,18 @@ class ProstExperiment(Experiment):
     """Conduct a Prost experiment.
 
     The most important methods for customizing an experiment are
-    :meth:`.add_algorithm`, :meth:`.add_suite`, :meth:`.add_parser`,
-    :meth:`.add_step` and :meth:`.add_report`.
+    :meth:`.add_config`, :meth:`.add_parser`, :meth:`.add_step` and
+    :meth:`.add_report`.
 
     .. note::
 
         To build the experiment, execute its runs and fetch the results,
-        add the following steps (previous Lab versions added these steps
-        automatically):
+        add the following steps:
 
         >>> exp = ProstExperiment(suites=IPC2014)
-        >>> exp.add_step('build', exp.build)
-        >>> exp.add_step('start', exp.start_runs)
-        >>> exp.add_fetcher(name='fetch')
+        >>> exp.add_step("build", exp.build)
+        >>> exp.add_step("start", exp.start_runs)
+        >>> exp.add_fetcher(name="fetch")
 
     """
 
@@ -225,7 +223,7 @@ class ProstExperiment(Experiment):
         >>> exp.add_config("ipc11", repo, rev, "IPC2011")
 
         """
-        if not isinstance(name, tools.string_type):
+        if not isinstance(name, str):
             logging.critical("Config name must be a string: {}".format(name))
         if name in self.configs:
             logging.critical("Config names must be unique: {}".format(name))
@@ -304,7 +302,7 @@ class ProstExperiment(Experiment):
         elif self.memory_limit[-1] == "G":
             memout_kb = int(self.memory_limit[:-1]) * 1024 * 1024
         else:
-            logging.critical("Memory limit must be given in MB or GB.")
+            logging.critical("Memory limit must be given in MiB or GiB.")
 
         port = self.port
         for config in self.configs.values():
