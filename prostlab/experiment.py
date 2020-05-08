@@ -91,7 +91,7 @@ class ProstRun(Run):
         self.set_property("revision_summary", self.config.cached_revision.summary)
 
         self.set_property("domain", self.task.domain)
-        self.set_property("instance", self.task.problem)
+        self.set_property("problem", self.task.problem)
         self.set_property("horizon", self.task.horizon)
         self.set_property("min_score", self.task.min_score)
         self.set_property("max_score", self.task.max_score)

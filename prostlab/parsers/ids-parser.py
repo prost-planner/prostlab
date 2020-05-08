@@ -34,68 +34,59 @@ class IDSParser(RepeatedPatternParser):
             "entries_det_state_value_cache",
             "Entries in deterministic state value cache: (.+)\n",
             type=int,
-            required=True,
         )
 
         self.add_repeated_pattern(
             "buckets_det_state_value_cache",
             "Buckets in deterministic state value cache: (.+)\n",
             type=int,
-            required=True,
         )
 
         self.add_repeated_pattern(
             "entries_det_applicable_actions_cache",
             "Entries in deterministic applicable actions cache: (.+)\n",
             type=int,
-            required=True,
         )
 
         self.add_repeated_pattern(
             "buckets_det_applicable_actions_cache",
             "Buckets in deterministic applicable actions cache: (.+)\n",
             type=int,
-            required=True,
         )
 
         self.add_repeated_pattern(
             "entries_ids_reward_cache",
             "Entries in IDS reward cache: (.+)\n",
             type=int,
-            required=True,
         )
 
         self.add_repeated_pattern(
             "buckets_ids_reward_cache",
             "Buckets in IDS reward cache: (.+)\n",
             type=int,
-            required=True,
         )
 
         self.add_repeated_pattern(
             "ids_avg_search_depth_initial_state",
             "Average search depth in initial state: (.+)\n",
             type=float,
-            required=True,
         )
 
         self.add_repeated_pattern(
             "ids_total_num_runs",
             "Total number of runs: (.+)\n",
             type=int,
-            required=True,
         )
 
         self.add_repeated_pattern(
             "ids_avg_search_depth_total",
             "Total average search depth: (.+)\n",
             type=float,
-            required=True,
         )
 
 
 def main():
-    parser = ProstParser()
+    parser = IDSParser()
     parser.parse()
 
 

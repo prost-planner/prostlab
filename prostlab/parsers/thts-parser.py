@@ -27,61 +27,53 @@ class THTSParser(RepeatedPatternParser):
             "entries_prob_state_value_cache",
             "Entries in probabilistic state value cache: (.+)\n",
             type=int,
-            required=True,
         )
 
         self.add_repeated_pattern(
             "buckets_prob_state_value_cache",
             "Buckets in probabilistic state value cache: (.+)\n",
             type=int,
-            required=True,
         )
 
         self.add_repeated_pattern(
             "entries_prob_applicable_actions_cache",
             "Entries in probabilistic applicable actions cache: (.+)\n",
             type=int,
-            required=True,
         )
 
         self.add_repeated_pattern(
             "buckets_prob_applicable_actions_cache",
             "Buckets in probabilistic applicable actions cache: (.+)\n",
             type=int,
-            required=True,
         )
 
         self.add_repeated_pattern(
             "rem_steps_first_solved_state",
             "Number of remaining steps in first solved state: (.+)\n",
             type=int,
-            required=True,
         )
 
         self.add_repeated_pattern(
             "trial_initial_state",
             "Number of trials in initial state: (.+)\n",
             type=int,
-            required=True,
         )
 
         self.add_repeated_pattern(
             "search_nodes_initial_state",
             "Number of search nodes in initial state: (.+)\n",
             type=int,
-            required=True,
         )
 
         self.add_repeated_pattern(
             "perc_exploration_initial_state",
             "Percentage exploration in initial state: (.+)\n",
             type=float,
-            required=True,
         )
 
 
 def main():
-    parser = ProstParser()
+    parser = THTSParser()
     parser.parse()
 
 

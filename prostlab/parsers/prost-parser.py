@@ -32,7 +32,7 @@ class ProstParser(RepeatedPatternParser):
 
         self.add_pattern(
             "parser_time",
-            "PROST parser complete running time: (.+)\n",
+            "PROST parser complete running time: (.+)s\n",
             type=float,
             required=True,
         )
@@ -64,13 +64,11 @@ class ProstParser(RepeatedPatternParser):
             "round_reward",
             ">>> END OF ROUND .* -- REWARD RECEIVED: (.+)\n",
             type=float,
-            required=True,
         )
 
 
 def main():
     parser = ProstParser()
     parser.parse()
-
 
 main()
