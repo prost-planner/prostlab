@@ -34,6 +34,7 @@ class CachedProstRevision(CachedRevision):
         * *build_options*: List of build.py options.
         """
         super().__init__(repo, rev, ["./build.py"] + build_options, ["scripts"])
+        self.build_options = build_options
 
     def _cleanup(self):
         # Strip binaries.

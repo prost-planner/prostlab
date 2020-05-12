@@ -45,15 +45,12 @@ class ProstRun(Run):
 
     """
 
-    def __init__(
-        self, exp, config, task, port, rddlsim_runtime, memory_limit,
-    ):
+    def __init__(self, exp, config, task, port, rddlsim_runtime):
         Run.__init__(self, exp)
         self.config = config
         self.task = task
         self.port = port
         self.rddlsim_runtime = rddlsim_runtime
-        self.memory_limit = memory_limit
         self.use_ipc2018_parser = int(self.task.path.endswith("2018"))
 
         self._set_properties()
@@ -62,6 +59,8 @@ class ProstRun(Run):
         self.add_resource(
             "", self.task.get_problem_path(), "problem.rddl", symlink=True
         )
+
+        parser_opts = ["-ipc2018", str(self.use_ipc2018_parser)] + self.config.parser_options
 
         self.add_command(
             "planner",
@@ -74,11 +73,10 @@ class ProstRun(Run):
                 str(self.rddlsim_runtime),
                 str(self.experiment.num_runs),
                 "{" + _get_planner_resource_name(config.cached_revision) + "}",
-                task.problem.replace(".rddl", ""),
-                str(self.use_ipc2018_parser),
-                self.experiment.prost_seed,
-                self.memory_limit,
-                config.search_engine_desc,
+                self.task.problem.replace(".rddl", ""),
+                " ".join(parser_opts),
+                " ".join(self.config.driver_options),
+                self.config.search_engine_desc,
             ],
         )
 
@@ -89,6 +87,10 @@ class ProstRun(Run):
         self.set_property("local_revision", self.config.cached_revision.local_rev)
         self.set_property("global_revision", self.config.cached_revision.global_rev)
         self.set_property("revision_summary", self.config.cached_revision.summary)
+        self.set_property("build_options", self.config.cached_revision.build_options)
+        self.set_property("parser_options", self.config.parser_options)
+        self.set_property("driver_options", self.config.driver_options)
+        self.set_property("search_engine", self.config.search_engine_desc)
 
         self.set_property("domain", self.task.domain)
         self.set_property("problem", self.task.problem)
@@ -97,22 +99,27 @@ class ProstRun(Run):
         self.set_property("max_score", self.task.max_score)
 
         self.set_property("port", self.port)
-        self.set_property("rddlsim_runtime", self.rddlsim_runtime)
+        self.set_property("enforced_time_limit", self.rddlsim_runtime)
         self.set_property("use_ipc2018_parser", self.use_ipc2018_parser)
 
         self.set_property("id", [self.config.name, self.task.domain, self.task.problem])
 
 
-class ProstConfig(object):
-    def __init__(self, name, cached_revision, search_engine_desc):
+class ProstAlgorithm(object):
+    def __init__(self, name, cached_revision, parser_options,
+                 driver_options, search_engine_desc):
         self.name = name
         self.cached_revision = cached_revision
+        self.parser_options = parser_options
+        self.driver_options = driver_options
         self.search_engine_desc = search_engine_desc
 
     def __eq__(self, other):
         """Return true iff all components (excluding the name) match."""
         return (
             self.cached_revision == other.cached_revision
+            and self.parser_options == other.parser_options
+            and self.driver_options == other.driver_options
             and self.search_engine_desc == other.search_engine_desc
         )
 
@@ -146,11 +153,9 @@ class ProstExperiment(Experiment):
         suites,
         num_runs=30,
         time_per_step=1.0,
-        port=2000,
+        initial_port=2000,
         rddlsim_seed=0,
         rddlsim_enforces_runtime=False,
-        prost_seed=0,
-        memory_limit="3584M",
         path=None,
         environment=None,
         revision_cache=None,
@@ -181,17 +186,15 @@ class ProstExperiment(Experiment):
         self.suites = suites
         self.num_runs = num_runs
         self.time_per_step = time_per_step
-        self.port = port
+        self.initial_port = initial_port
         self.rddlsim_seed = rddlsim_seed
         self.rddlsim_enforces_runtime = rddlsim_enforces_runtime
-        self.prost_seed = prost_seed
-        self.memory_limit = memory_limit
 
         # Use OrderedDict to ensure that names are unique and ordered.
         self.configs = OrderedDict()
 
-    def add_config(
-        self, name, repo, rev, search_engine_desc, build_options=None,
+    def add_algorithm(
+            self, name, repo, rev, search_engine_desc, build_options=None, parser_options=None, driver_options=None
     ):
         """Add a Prost algorithm to the experiment, i.e., a
         planner configuration in a given repository at a given
@@ -212,6 +215,18 @@ class ProstExperiment(Experiment):
         ``"--debug"``) or options for Make. If *build_options* is
         omitted, the ``"release"`` version is built.
 
+        If given, *parser_options* must be a list of strings. They will
+        be passed to the rddl_parser component of the planner. See the
+        end of the file srd/rddl_parser/parser.ypp for available options.
+
+        If given, *driver_options* must be a list of strings. They will
+        be parsed by the ProstPlanner class in the search component of
+        the planner. See the ``PROST Planner Options`` section in the
+        output of running ``prost.py`` for available options. The list
+        is always prepended with ``["-s", "1", "-ram", "3670016"]``.
+        Specifying a custom seed or RAM limit overrides these default
+        values.
+
         Example experiment setup to test Prost2011 in the latest revision 
         on the master branch:
 
@@ -220,7 +235,7 @@ class ProstExperiment(Experiment):
         >>> exp = ProstExperiment()
         >>> repo = os.environ["PROST_REPO"]
         >>> rev = "master"
-        >>> exp.add_config("ipc11", repo, rev, "IPC2011")
+        >>> exp.add_algorithm("ipc11", repo, rev, "IPC2011")
 
         """
         if not isinstance(name, str):
@@ -228,9 +243,15 @@ class ProstExperiment(Experiment):
         if name in self.configs:
             logging.critical("Config names must be unique: {}".format(name))
         build_options = build_options or []
-        config = ProstConfig(
-            name, CachedProstRevision(repo, rev, build_options), search_engine_desc,
-        )
+        parser_options = parser_options or []
+        driver_options = [
+            "-s",
+            "1",
+            "-ram",
+            "3670016",
+        ] + (driver_options or [])
+        config = ProstAlgorithm(
+            name, CachedProstRevision(repo, rev, build_options), parser_options, driver_options, search_engine_desc)
 
         print("{}: {}".format(config.name, config.search_engine_desc))
         for conf in self.configs.values():
@@ -254,8 +275,8 @@ class ProstExperiment(Experiment):
         self.set_property("num_runs", self.num_runs)
         self.set_property("time_per_step", self.time_per_step)
         self.set_property("rddlsim_seed", self.rddlsim_seed)
-        self.set_property("prost_seed", self.prost_seed)
-        self.set_property("memory_limit", self.memory_limit)
+        self.set_property("initial_port", self.initial_port)
+        self.set_property("rddlsim_enforces_runtime", self.rddlsim_enforces_runtime)
 
         self._cache_revisions()
         self._add_code()
@@ -296,15 +317,7 @@ class ProstExperiment(Experiment):
             )
 
     def _add_runs(self):
-        # The memory limit in kb
-        if self.memory_limit[-1] == "M":
-            memout_kb = int(self.memory_limit[:-1]) * 1024
-        elif self.memory_limit[-1] == "G":
-            memout_kb = int(self.memory_limit[:-1]) * 1024 * 1024
-        else:
-            logging.critical("Memory limit must be given in MiB or GiB.")
-
-        port = self.port
+        port = self.initial_port
         for config in self.configs.values():
             for task in self.suites:
                 rddlsim_run_time = 0
@@ -313,6 +326,6 @@ class ProstExperiment(Experiment):
                         task.horizon * self.num_runs * self.time_per_step
                     )
                 self.add_run(
-                    ProstRun(self, config, task, port, rddlsim_run_time, memout_kb,)
+                    ProstRun(self, config, task, port, rddlsim_run_time)
                 )
                 port += 1
