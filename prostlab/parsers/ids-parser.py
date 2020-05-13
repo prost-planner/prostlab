@@ -55,15 +55,11 @@ class IDSParser(RepeatedPatternParser):
         )
 
         self.add_repeated_pattern(
-            "entries_ids_reward_cache",
-            "Entries in IDS reward cache: (.+)\n",
-            type=int,
+            "entries_ids_reward_cache", "Entries in IDS reward cache: (.+)\n", type=int,
         )
 
         self.add_repeated_pattern(
-            "buckets_ids_reward_cache",
-            "Buckets in IDS reward cache: (.+)\n",
-            type=int,
+            "buckets_ids_reward_cache", "Buckets in IDS reward cache: (.+)\n", type=int,
         )
 
         self.add_repeated_pattern(
@@ -73,9 +69,7 @@ class IDSParser(RepeatedPatternParser):
         )
 
         self.add_repeated_pattern(
-            "ids_total_num_runs",
-            "Total number of runs: (.+)\n",
-            type=int,
+            "ids_total_num_runs", "Total number of runs: (.+)\n", type=int,
         )
 
         self.add_repeated_pattern(

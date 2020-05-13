@@ -60,7 +60,10 @@ class ProstRun(Run):
             "", self.task.get_problem_path(), "problem.rddl", symlink=True
         )
 
-        parser_opts = ["-ipc2018", str(self.use_ipc2018_parser)] + self.config.parser_options
+        parser_opts = [
+            "-ipc2018",
+            str(self.use_ipc2018_parser),
+        ] + self.config.parser_options
 
         self.add_command(
             "planner",
@@ -78,6 +81,7 @@ class ProstRun(Run):
                 " ".join(self.config.driver_options),
                 self.config.search_engine_desc,
             ],
+            soft_stdout_limit=6 * 1024,
         )
 
     def _set_properties(self):
@@ -106,8 +110,9 @@ class ProstRun(Run):
 
 
 class ProstAlgorithm(object):
-    def __init__(self, name, cached_revision, parser_options,
-                 driver_options, search_engine_desc):
+    def __init__(
+        self, name, cached_revision, parser_options, driver_options, search_engine_desc
+    ):
         self.name = name
         self.cached_revision = cached_revision
         self.parser_options = parser_options
@@ -194,7 +199,14 @@ class ProstExperiment(Experiment):
         self.configs = OrderedDict()
 
     def add_algorithm(
-            self, name, repo, rev, search_engine_desc, build_options=None, parser_options=None, driver_options=None
+        self,
+        name,
+        repo,
+        rev,
+        search_engine_desc,
+        build_options=None,
+        parser_options=None,
+        driver_options=None,
     ):
         """Add a Prost algorithm to the experiment, i.e., a
         planner configuration in a given repository at a given
@@ -244,14 +256,14 @@ class ProstExperiment(Experiment):
             logging.critical("Config names must be unique: {}".format(name))
         build_options = build_options or []
         parser_options = parser_options or []
-        driver_options = [
-            "-s",
-            "1",
-            "-ram",
-            "3670016",
-        ] + (driver_options or [])
+        driver_options = ["-s", "1", "-ram", "3670016",] + (driver_options or [])
         config = ProstAlgorithm(
-            name, CachedProstRevision(repo, rev, build_options), parser_options, driver_options, search_engine_desc)
+            name,
+            CachedProstRevision(repo, rev, build_options),
+            parser_options,
+            driver_options,
+            search_engine_desc,
+        )
 
         print("{}: {}".format(config.name, config.search_engine_desc))
         for conf in self.configs.values():
@@ -325,7 +337,5 @@ class ProstExperiment(Experiment):
                     rddlsim_run_time = int(
                         task.horizon * self.num_runs * self.time_per_step
                     )
-                self.add_run(
-                    ProstRun(self, config, task, port, rddlsim_run_time)
-                )
+                self.add_run(ProstRun(self, config, task, port, rddlsim_run_time))
                 port += 1
