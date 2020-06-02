@@ -31,17 +31,27 @@ class ProstParser(RepeatedPatternParser):
         RepeatedPatternParser.__init__(self)
 
         self.add_pattern(
+            "node", r"node: (.+)\n", type=str, file="driver.log", required=True
+        )
+        
+        self.add_pattern(
+            "planner_wall_clock_time",
+            r"planner wall-clock time: (.+)s",
+            type=float,
+            file="driver.log",
+            required=True,
+        )
+
+        self.add_pattern(
             "parser_time",
             "PROST parser complete running time: (.+)s\n",
             type=float,
-            required=True,
         )
 
         self.add_pattern(
             "search_time",
             "PROST complete running time: (.+)\n",
             type=float,
-            required=True,
         )
 
         self.add_function(add_planner_time)
@@ -50,14 +60,12 @@ class ProstParser(RepeatedPatternParser):
             "total_reward",
             ">>> END OF SESSION  -- TOTAL REWARD: (.+)\n",
             type=float,
-            required=True,
         )
 
         self.add_pattern(
             "average_reward",
             ">>> END OF SESSION  -- AVERAGE REWARD: (.+)\n",
             type=float,
-            required=True,
         )
 
         self.add_repeated_pattern(

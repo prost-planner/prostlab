@@ -27,7 +27,6 @@ class IDSParser(RepeatedPatternParser):
             "ids_learned_search_depth",
             "THTS heuristic IDS: Setting max search depth to: (.+)\n",
             type=int,
-            required=True,
         )
 
         self.add_repeated_pattern(
