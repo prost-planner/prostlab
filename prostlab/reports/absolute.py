@@ -33,34 +33,34 @@ class AbsoluteProstReport(AbsoluteReport):
         self.PREDEFINED_ATTRIBUTES = [
             Attribute("ipc_score", min_wins=False),
             # Attributes from prost_parser
-            Attribute("node"),
-            Attribute("planner_wall_clock_time"),
-            Attribute("parser_time"),
-            Attribute("search_time"),
-            Attribute("total_time"),
-            Attribute("total_reward", min_wins=False),
-            Attribute("average_reward", min_wins=False),
-            Attribute("round_reward", min_wins=False),
+            # Attribute("node"),
+            # Attribute("planner_wall_clock_time"),
+            # Attribute("parser_time"),
+            # Attribute("search_time"),
+            # Attribute("total_time"),
+            Attribute("total_reward", absolute=True, min_wins=False, function=geometric_mean),
+            Attribute("average_reward", absolute=True, min_wins=False, function=geometric_mean),
+            # Attribute("round_reward"),
             # Attributes from thts_parser
-            Attribute("entries_prob_state_value_cache"),
-            Attribute("buckets_prob_state_value_cache"),
-            Attribute("entries_prob_applicable_actions_cache"),
-            Attribute("buckets_prob_applicable_actions_cache"),
-            Attribute("rem_steps_first_solved_state", min_wins=False),
-            Attribute("trial_initial_state", min_wins=False),
-            Attribute("search_nodes_initial_state", min_wins=False),
-            Attribute("perc_exploration_initial_state"),
+            # Attribute("entries_prob_state_value_cache"),
+            # Attribute("buckets_prob_state_value_cache"),
+            # Attribute("entries_prob_applicable_actions_cache"),
+            # Attribute("buckets_prob_applicable_actions_cache"),
+            # Attribute("rem_steps_first_solved_state"),
+            # Attribute("trial_initial_state"),
+            # Attribute("search_nodes_initial_state"),
+            # Attribute("perc_exploration_initial_state"),
             # Attributes from ids_parser
-            Attribute("ids_learned_search_depth", min_wins=False),
-            Attribute("entries_det_state_value_cache"),
-            Attribute("buckets_det_state_value_cache"),
-            Attribute("entries_det_applicable_actions_cache"),
-            Attribute("buckets_det_applicable_actions_cache"),
-            Attribute("entries_ids_reward_cache"),
-            Attribute("buckets_ids_reward_cache"),
-            Attribute("ids_avg_search_depth_initial_state", min_wins=False),
-            Attribute("ids_total_num_runs", min_wins=False),
-            Attribute("ids_avg_search_depth_total", min_wins=False),
+            Attribute("ids_learned_search_depth", absolute=True, min_wins=False),
+            # Attribute("entries_det_state_value_cache"),
+            # Attribute("buckets_det_state_value_cache"),
+            # Attribute("entries_det_applicable_actions_cache"),
+            # Attribute("buckets_det_applicable_actions_cache"),
+            # Attribute("entries_ids_reward_cache"),
+            # Attribute("buckets_ids_reward_cache"),
+            # Attribute("ids_avg_search_depth_initial_state"),
+            # Attribute("ids_total_num_runs"),
+            # Attribute("ids_avg_search_depth_total"),
         ]
 
         #: Attributes shown in the algorithm info table. Overwrites the
@@ -75,7 +75,7 @@ class AbsoluteProstReport(AbsoluteReport):
             "search_engine",
         ]
 
-        #: Attributes shown in the unexplained-errors table.  Overwrites the
+        #: Attributes shown in the unexplained-errors table. Overwrites the
         #: list in PlanningReport from downward.report.
         self.ERROR_ATTRIBUTES = [
             "domain",

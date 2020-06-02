@@ -28,7 +28,7 @@ class Problem(object):
         domain_file=None,
         problem_file=None,
         max_score=None,
-        properties=None,
+        properties=dict(),
     ):
         """
         *domain* and *problem* are the display names of the domain and
@@ -71,7 +71,9 @@ class Problem(object):
             else:
                 problem_file_name = "{}_inst_mdp__{}.rddl".format(self.domain[:-5].replace("-","_"), self.problem)
             self.problem_file = os.path.join(benchmarks_dir, problem_file_name)
-                
+
+        self.problem = "inst-{:02d}".format(self.problem)
+        self.problem_name = os.path.split(self.problem_file)[-1][:-5]
             
         self.min_score = min_score
         self.max_score = max_score
@@ -96,7 +98,7 @@ class Problem(object):
 
     def __str__(self):
         return (
-            "<Problem {domain}({domain_file}):{problem:02d}({problem_file}):"
+            "<Problem {domain}({domain_file}):{problem}({problem_file}):"
             "min_score={min_score}:max_score={max_score}:horizon={horizon}:"
             "{properties}>".format(**self.__dict__)
         )

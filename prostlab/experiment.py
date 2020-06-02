@@ -51,14 +51,12 @@ class ProstRun(Run):
         self.task = task
         self.port = port
         self.rddlsim_runtime = rddlsim_runtime
-        self.use_ipc2018_parser = int(self.task.path.endswith("2018"))
+        self.use_ipc2018_parser = int(self.task.domain.endswith("2018"))
 
         self._set_properties()
 
-        self.add_resource("", self.task.get_domain_path(), "domain.rddl", symlink=True)
-        self.add_resource(
-            "", self.task.get_problem_path(), "problem.rddl", symlink=True
-        )
+        self.add_resource("", self.task.domain_file, "domain.rddl", symlink=True)
+        self.add_resource("", self.task.problem_file, "problem.rddl", symlink=True)
 
         parser_opts = [
             "-ipc2018",
@@ -76,7 +74,7 @@ class ProstRun(Run):
                 str(self.rddlsim_runtime),
                 str(self.experiment.num_runs),
                 "{" + _get_planner_resource_name(config.cached_revision) + "}",
-                self.task.problem.replace(".rddl", ""),
+                self.task.problem_name,
                 " ".join(parser_opts),
                 " ".join(self.config.driver_options),
                 self.config.search_engine_desc,
@@ -98,15 +96,20 @@ class ProstRun(Run):
 
         self.set_property("domain", self.task.domain)
         self.set_property("problem", self.task.problem)
+        self.set_property("domain_file", self.task.domain_file)
+        self.set_property("problem_file", self.task.problem_file)
+        self.set_property("problem_name", self.task.problem_name)
         self.set_property("horizon", self.task.horizon)
         self.set_property("min_score", self.task.min_score)
         self.set_property("max_score", self.task.max_score)
+        for prop, val in self.task.properties.items():
+            self.set_property(prop, val)
 
         self.set_property("port", self.port)
         self.set_property("enforced_time_limit", self.rddlsim_runtime)
         self.set_property("use_ipc2018_parser", self.use_ipc2018_parser)
 
-        self.set_property("id", [self.config.name, self.task.domain, self.task.problem])
+        self.set_property("id", [self.config.name, self.task.domain, str(self.task.problem)])
 
 
 class ProstAlgorithm(object):
