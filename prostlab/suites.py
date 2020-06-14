@@ -22,12 +22,12 @@ class Problem(object):
         self,
         domain,
         problem,
-        min_score,
+        min_reward,
         horizon=None,
         benchmarks_dir="",
         domain_file=None,
         problem_file=None,
-        max_score=None,
+        max_reward=None,
         properties=dict(),
     ):
         """
@@ -35,10 +35,10 @@ class Problem(object):
         problem, and *domain_file* and *problem_file* are paths to the
         respective files on the disk.
 
-        *min_score* and *max_score* are the average rewards of a minimal policy
-        and a (near-)optimal policy that are used to compute IPC scores. If none
-        is provided, the minimal or maximal result of all planners is used
-        instead. 
+        *min_reward* and *max_reward* are the average rewards of a minimal 
+        policy and a (near-)optimal policy that are used to compute IPC scores.
+        If none is provided, the minimal or maximal result of all planners is 
+        used instead. 
 
         *properties* may be a dictionary of entries that should be added
         to the properties file of each run that uses this problem. ::
@@ -75,8 +75,8 @@ class Problem(object):
         self.problem = "inst-{:02d}".format(self.problem)
         self.problem_name = os.path.split(self.problem_file)[-1][:-5]
             
-        self.min_score = min_score
-        self.max_score = max_score
+        self.min_reward = min_reward
+        self.max_reward = max_reward
 
         self.horizon = horizon
         if self.horizon is None:
@@ -99,7 +99,7 @@ class Problem(object):
     def __str__(self):
         return (
             "<Problem {domain}({domain_file}):{problem}({problem_file}):"
-            "min_score={min_score}:max_score={max_score}:horizon={horizon}:"
+            "min_reward={min_reward}:max_reward={max_reward}:horizon={horizon}:"
             "{properties}>".format(**self.__dict__)
         )
 

@@ -16,7 +16,7 @@ setup(
     author_email="thomaskeller79@gmail.com",
     url="https://github.com/prost-planner/prostlab",
     license="GPL3+",
-    packages=["prostlab", "prostlab.reports"],
+    packages=["prostlab", "prostlab.parsers", "prostlab.reports"],
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Science/Research",

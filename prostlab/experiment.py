@@ -21,8 +21,11 @@ import os
 
 from collections import defaultdict, OrderedDict
 
-from prostlab.cached_revision import CachedProstRevision
 from lab.experiment import Experiment, get_default_data_dir, Run
+
+from prostlab.cached_revision import CachedProstRevision
+from prostlab.parsers import get_attributes_of_algorithm
+
 
 DIR = os.path.dirname(os.path.abspath(__file__))
 PARSERS_DIR = os.path.join(DIR, "parsers")
@@ -100,8 +103,8 @@ class ProstRun(Run):
         self.set_property("problem_file", self.task.problem_file)
         self.set_property("problem_name", self.task.problem_name)
         self.set_property("horizon", self.task.horizon)
-        self.set_property("min_score", self.task.min_score)
-        self.set_property("max_score", self.task.max_score)
+        self.set_property("min_reward", self.task.min_reward)
+        self.set_property("max_reward", self.task.max_reward)
         for prop, val in self.task.properties.items():
             self.set_property(prop, val)
 
@@ -121,6 +124,9 @@ class ProstAlgorithm(object):
         self.parser_options = parser_options
         self.driver_options = driver_options
         self.search_engine_desc = search_engine_desc
+
+    def get_parsed_default_attributes(self):
+        return get_attributes_of_algorithm(self.search_engine_desc)
 
     def __eq__(self, other):
         """Return true iff all components (excluding the name) match."""
@@ -342,3 +348,11 @@ class ProstExperiment(Experiment):
                     )
                 self.add_run(ProstRun(self, config, task, port, rddlsim_run_time))
                 port += 1
+
+    def get_parsed_default_attributes(self):
+        """Return all attributes that are parsed by one of the default parsers.
+        """
+        result = set()
+        for config in self.configs.values():
+            result = set().union(result, config.get_parsed_default_attributes())
+        return sorted(list(result))
