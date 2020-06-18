@@ -62,8 +62,8 @@ class IDSParser(RepeatedPatternParser):
         )
 
         self.add_repeated_pattern(
-            "ids_avg_search_depth_initial_state",
-            "Average search depth in initial state: (.+)\n",
+            "ids_avg_search_depth_first_relevant_state",
+            "Average search depth in first relevant state: (.+)\n",
             type=float,
         )
 

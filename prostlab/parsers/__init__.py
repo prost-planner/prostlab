@@ -50,7 +50,7 @@ def get_all_thts_parser_attributes():
         "entries_prob_applicable_actions_cache",
         "buckets_prob_applicable_actions_cache",
         "rem_steps_first_solved_state",
-        "trial_first_relevant_state",
+        "trials_first_relevant_state",
         "search_nodes_first_relevant_state",
         "perc_exploration_first_relevant_state",
     ]
@@ -62,7 +62,7 @@ def get_default_thts_parser_attributes():
     """
     return [
         "rem_steps_first_solved_state",
-        "trial_first_relevant_state",
+        "trials_first_relevant_state",
     ]
 
 def get_all_ids_parser_attributes():
@@ -78,7 +78,7 @@ def get_all_ids_parser_attributes():
         "buckets_det_applicable_actions_cache",
         "entries_ids_reward_cache",
         "buckets_ids_reward_cache",
-        "ids_avg_search_depth_initial_state",
+        "ids_avg_search_depth_first_relevant_state",
         "ids_total_num_runs",
         "ids_avg_search_depth_total",
     ]

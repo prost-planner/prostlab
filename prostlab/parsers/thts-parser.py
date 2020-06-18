@@ -54,7 +54,7 @@ class THTSParser(RepeatedPatternParser):
         )
 
         self.add_repeated_pattern(
-            "trial_first_relevant_state",
+            "trials_first_relevant_state",
             "Number of trials in first relevant state: (.+)\n",
             type=int,
         )

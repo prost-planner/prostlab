@@ -23,27 +23,34 @@ from fnmatch import fnmatch
 import logging
 
 from lab import tools
-from lab.reports import Attribute, CellFormatter, geometric_mean, markup, Report, Table
+from lab.reports import arithmetic_mean, Attribute, CellFormatter, geometric_mean, markup, Report, Table
 
 
-def elementwise_sum(cells):
+def elementwise_func(cells, func):
     len_list = max([len(cell) for cell in cells])
     result = []
-    for index in range(0, len_list):
-        result.append(sum([cell[index] for cell in cells if index < len(cell) and cell[index] is not None]))
-    return result
-
-
-def elementwise_max(cells):
-    len_list = max([len(cell) for cell in cells])
-    result = []
-    for index in range(0, len_list):
+    for index in range(0,len_list):
         values = [cell[index] for cell in cells if index < len(cell) and cell[index] is not None]
         if values:
-            result.append(max(values))
+            result.append(func(values))
         else:
             result.append(None)
     return result
+
+def elementwise_arithmetic_mean(cells):
+    return elementwise_func(cells, arithmetic_mean)
+
+def elementwise_geometric_mean(cells):
+    return elementwise_func(cells, geometric_mean)
+
+def elementwise_sum(cells):
+    return elementwise_func(cells, sum)
+
+def elementwise_max(cells):
+    return elementwise_func(cells, max)
+
+def elementwise_min(cells):
+    return elementwise_func(cells, min)
 
 def rgb_fractions_to_html_colors(colors):
     if isinstance(colors, list):
@@ -105,12 +112,12 @@ class PlanningReport(Report):
     #: ``Attribute('coverage', absolute=True, min_wins=False, scale='linear')``.
     #: The list can be overriden in subclasses.
     PREDEFINED_ATTRIBUTES = [
-        Attribute("ipc_score", min_wins=False),
+        Attribute("ipc_score", absolute=True, min_wins=False),
         
         # Attributes from prost_parser
         Attribute("total_time", function=geometric_mean),
-        Attribute("total_reward", absolute=True, min_wins=False),
-        Attribute("average_reward", absolute=True, min_wins=False),
+        Attribute("total_reward", min_wins=False),
+        Attribute("average_reward", min_wins=False),
         Attribute("round_reward", min_wins=False, function=elementwise_sum),
         
         # Attributes from thts_parser
@@ -118,22 +125,22 @@ class PlanningReport(Report):
         Attribute("buckets_prob_state_value_cache", function=elementwise_max),
         Attribute("entries_prob_applicable_actions_cache", function=elementwise_max),
         Attribute("buckets_prob_applicable_actions_cache", function=elementwise_max),
-        Attribute("rem_steps_first_solved_state", function=elementwise_sum),
-        Attribute("trial_first_relevant_state", function=elementwise_sum),
-        Attribute("search_nodes_first_relevant_state", function=elementwise_sum),
+        Attribute("rem_steps_first_solved_state", function=elementwise_arithmetic_mean, min_wins=False),
+        Attribute("trials_first_relevant_state", function=elementwise_geometric_mean, min_wins=False),
+        Attribute("search_nodes_first_relevant_state", function=elementwise_geometric_mean, min_wins=False),
         Attribute("perc_exploration_first_relevant_state", function=elementwise_sum),
         
         # Attributes from ids_parser
-        Attribute("ids_learned_search_deth", absolute=True, min_wins=False),
-        Attribute("entries_det_state_value_cache", function=elementwise_sum),
-        Attribute("buckets_det_state_value_cache", function=elementwise_sum),
-        Attribute("entries_det_applicable_actions_cache", function=elementwise_sum),
-        Attribute("buckets_det_applicable_actions_cache", function=elementwise_sum),
-        Attribute("entries_ids_reward_cache", function=elementwise_sum),
-        Attribute("buckets_ids_reward_cache", function=elementwise_sum),
-        Attribute("ids_avg_search_depth_initial_state", function=elementwise_sum),
-        Attribute("ids_total_num_runs", function=elementwise_sum),
-        Attribute("ids_avg_search_depth_total", function=elementwise_sum),
+        Attribute("ids_learned_search_depth", min_wins=False),
+        Attribute("entries_det_state_value_cache", function=elementwise_max),
+        Attribute("buckets_det_state_value_cache", function=elementwise_max),
+        Attribute("entries_det_applicable_actions_cache", function=elementwise_max),
+        Attribute("buckets_det_applicable_actions_cache", function=elementwise_max),
+        Attribute("entries_ids_reward_cache", function=elementwise_max),
+        Attribute("buckets_ids_reward_cache", function=elementwise_max),
+        Attribute("ids_avg_search_depth_first_relevant_state", function=elementwise_sum, min_wins=False),
+        Attribute("ids_total_num_runs", function=elementwise_sum, min_wins=False),
+        Attribute("ids_avg_search_depth_total", function=elementwise_sum, min_wins=False),
     ]
 
     #: Attributes shown in the algorithm info table. Can be overriden in
