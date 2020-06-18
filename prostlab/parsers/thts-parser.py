@@ -54,20 +54,20 @@ class THTSParser(RepeatedPatternParser):
         )
 
         self.add_repeated_pattern(
-            "trial_initial_state",
-            "Number of trials in initial state: (.+)\n",
+            "trial_first_relevant_state",
+            "Number of trials in first relevant state: (.+)\n",
             type=int,
         )
 
         self.add_repeated_pattern(
-            "search_nodes_initial_state",
-            "Number of search nodes in initial state: (.+)\n",
+            "search_nodes_first_relevant_state",
+            "Number of search nodes in first relevant state: (.+)\n",
             type=int,
         )
 
         self.add_repeated_pattern(
-            "perc_exploration_initial_state",
-            "Percentage exploration in initial state: (.+)\n",
+            "perc_exploration_first_relevant_state",
+            "Percentage exploration in first relevant state: (.+)\n",
             type=float,
         )
 

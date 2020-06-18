@@ -24,7 +24,7 @@ from collections import defaultdict, OrderedDict
 from lab.experiment import Experiment, get_default_data_dir, Run
 
 from prostlab.cached_revision import CachedProstRevision
-from prostlab.parsers import get_attributes_of_algorithm
+from prostlab.parsers import get_all_attributes_of_algorithm, get_default_attributes_of_algorithm
 
 
 DIR = os.path.dirname(os.path.abspath(__file__))
@@ -125,8 +125,11 @@ class ProstAlgorithm(object):
         self.driver_options = driver_options
         self.search_engine_desc = search_engine_desc
 
-    def get_parsed_default_attributes(self):
-        return get_attributes_of_algorithm(self.search_engine_desc)
+    def get_all_attributes(self):
+        return get_all_attributes_of_algorithm(self.search_engine_desc)
+
+    def get_default_attributes(self):
+        return get_default_attributes_of_algorithm(self.search_engine_desc)
 
     def __eq__(self, other):
         """Return true iff all components (excluding the name) match."""
@@ -349,10 +352,19 @@ class ProstExperiment(Experiment):
                 self.add_run(ProstRun(self, config, task, port, rddlsim_run_time))
                 port += 1
 
-    def get_parsed_default_attributes(self):
+    def get_all_attributes(self):
         """Return all attributes that are parsed by one of the default parsers.
         """
         result = set()
         for config in self.configs.values():
-            result = set().union(result, config.get_parsed_default_attributes())
+            result = set().union(result, config.get_all_attributes())
+        return sorted(list(result))
+
+    def get_default_attributes(self):
+        """Return default attributes that are parsed by one of the default 
+        parsers.
+        """
+        result = set()
+        for config in self.configs.values():
+            result = set().union(result, config.get_default_attributes())
         return sorted(list(result))

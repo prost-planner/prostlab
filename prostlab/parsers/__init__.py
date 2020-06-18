@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-def get_prost_parser_attributes():
+def get_all_prost_parser_attributes():
     """ Return all attributes that are parsed by the ProstParser in 
     prostlab.parsers.
 
@@ -28,7 +28,18 @@ def get_prost_parser_attributes():
         "round_reward",
     ]
 
-def get_thts_parser_attributes():
+def get_default_prost_parser_attributes():
+    """ Return default attributes that are parsed by the ProstParser in 
+    prostlab.parsers.
+
+    """
+    return [
+        "parser_time",
+        "search_time",
+        "average_reward",
+    ]
+
+def get_all_thts_parser_attributes():
     """ Return all attributes that are parsed by the THTSParser in 
     prostlab.parsers.
 
@@ -39,12 +50,22 @@ def get_thts_parser_attributes():
         "entries_prob_applicable_actions_cache",
         "buckets_prob_applicable_actions_cache",
         "rem_steps_first_solved_state",
-        "trial_initial_state",
-        "search_nodes_initial_state",
-        "perc_exploration_initial_state",
+        "trial_first_relevant_state",
+        "search_nodes_first_relevant_state",
+        "perc_exploration_first_relevant_state",
     ]
 
-def get_ids_parser_attributes():
+def get_default_thts_parser_attributes():
+    """ Return default attributes that are parsed by the THTSParser in 
+    prostlab.parsers.
+
+    """
+    return [
+        "rem_steps_first_solved_state",
+        "trial_first_relevant_state",
+    ]
+
+def get_all_ids_parser_attributes():
     """ Return all attributes that are parsed by the IDSParser in 
     prostlab.parsers.
 
@@ -62,16 +83,39 @@ def get_ids_parser_attributes():
         "ids_avg_search_depth_total",
     ]
 
-def get_attributes_of_algorithm(algo):
+def get_default_ids_parser_attributes():
+    """ Return default attributes that are parsed by the IDSParser in 
+    prostlab.parsers.
+
+    """
+    return [
+        "ids_learned_search_depth",
+    ]
+
+def get_all_attributes_of_algorithm(algo):
     """ Return all attributes that are relevant for the algorithm *algo* and
     parsed by one of the Prost default parsers in prostlab.parsers.
 
     """
-    result = get_prost_parser_attributes()
+    result = ["ipc_score"] + get_all_prost_parser_attributes()
     if "THTS" in algo or "IPC2011" in algo or "IPC2014" in algo:
-        result += get_thts_parser_attributes()
+        result += get_all_thts_parser_attributes()
 
     if "IDS" in algo or "IPC2011" in algo or "IPC2014" in algo:
-        result += get_ids_parser_attributes()
+        result += get_all_ids_parser_attributes()
+        
+    return result
+
+def get_default_attributes_of_algorithm(algo):
+    """ Return default attributes that are relevant for the algorithm *algo*
+    and parsed by one of the Prost default parsers in prostlab.parsers.
+
+    """
+    result = ["ipc_score"] + get_default_prost_parser_attributes()
+    if "THTS" in algo or "IPC2011" in algo or "IPC2014" in algo:
+        result += get_default_thts_parser_attributes()
+
+    if "IDS" in algo or "IPC2011" in algo or "IPC2014" in algo:
+        result += get_default_ids_parser_attributes()
         
     return result
