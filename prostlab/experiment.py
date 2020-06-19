@@ -48,7 +48,7 @@ class ProstRun(Run):
 
     """
 
-    def __init__(self, exp, config, task, port, rddlsim_runtime):
+    def __init__(self, exp, config, task, port, rddlsim_runtime, run_time):
         Run.__init__(self, exp)
         self.config = config
         self.task = task
@@ -82,7 +82,12 @@ class ProstRun(Run):
                 " ".join(self.config.driver_options),
                 self.config.search_engine_desc,
             ],
-            soft_stdout_limit=6 * 1024,
+            time_limit = run_time,
+            memory_limit = exp.memory_limit,
+            soft_stdout_limit = exp.soft_stdout_limit,
+            hard_stdout_limit = exp.hard_stdout_limit,
+            soft_stderr_limit = exp.soft_stderr_limit,
+            hard_stderr_limit = exp.hard_stderr_limit,
         )
 
     def _set_properties(self):
@@ -173,18 +178,49 @@ class ProstExperiment(Experiment):
         initial_port=2000,
         rddlsim_seed=0,
         rddlsim_enforces_runtime=False,
+        revision_cache=None,
+        time_buffer=300,
+        memory_limit=3.5*1024,
+        soft_stdout_limit=10 * 1024,
+        hard_stdout_limit=20 * 1024,
+        soft_stderr_limit=64,
+        hard_stderr_limit=10 * 1024,
         path=None,
         environment=None,
-        revision_cache=None,
     ):
         """
+        *suites* is a list of :class:'prostlab.suites.Problem' objects that describes
+        the set of benchmarks used in the experiment.
+
+        *num_runs* is the number of times each algorithm is executed on each instance.
+
+        *time_per_step* is the time in seconds each algorithm has per step. A total time
+        per instance is computed from this, the *num_runs*, the instance horizon and the 
+        *time_buffer*.
+
+        *initial_port* is the first port that is used for TCP/IP communication between
+        an algorithm and rddlsim. 
+
+        *rddlsim_seed* is the value with which rddlsim is seeded.
+
+        If *rddlsim_enforces_runtime* is True, rddlsim terminates after the time that is
+        computed as the product of *num_runs*, *time_per_step* and the instance horizon.
+
+        *revision_cache* is the directory for caching Prost revisions. It defaults to 
+        ``<scriptdir>/data/revision-cache``.
+
+        *time_buffer* is the time that is allows in addtion to the product of *num_runs*, 
+        *time_per_step* and the instance horizon. This must include the time the parser
+        requires.
+
+        *memory_limit* is the hard memory limit in MiB. *memory_limit* - 512 MiB is
+        furthermore passed as a (soft) memory limit to Prost.
+
+        *soft_stdout_limit*, *hard_stdout_limit*, *soft_stderr_limit* and 
+        *hard_stderr_limit* limit the amount of data each experiment may write to disk,
+
         See :class:`lab.experiment.Experiment` for an explanation of
         the *path* and *environment* parameters.
-
-        *revision_cache* is the directory for caching Prost
-        revisions. It defaults to ``<scriptdir>/data/revision-cache``.
-        This directory can become very large since each revision uses
-        about 30 MB.
 
         >>> from lab.environments import BaselSlurmEnvironment
         >>> env = BaselSlurmEnvironment(email="my.name@unibas.ch")
@@ -196,16 +232,23 @@ class ProstExperiment(Experiment):
         """
         Experiment.__init__(self, path=path, environment=environment)
 
-        self.revision_cache = revision_cache or os.path.join(
-            get_default_data_dir(), "revision-cache"
-        )
-
         self.suites = suites
         self.num_runs = num_runs
         self.time_per_step = time_per_step
         self.initial_port = initial_port
         self.rddlsim_seed = rddlsim_seed
         self.rddlsim_enforces_runtime = rddlsim_enforces_runtime
+
+        self.revision_cache = revision_cache or os.path.join(
+            get_default_data_dir(), "revision-cache"
+        )
+
+        self.time_buffer = time_buffer
+        self.memory_limit = memory_limit
+        self.soft_stdout_limit = soft_stdout_limit
+        self.hard_stdout_limit = hard_stdout_limit
+        self.soft_stderr_limit = soft_stderr_limit
+        self.hard_stderr_limit = hard_stderr_limit
 
         # Use OrderedDict to ensure that names are unique and ordered.
         self.configs = OrderedDict()
@@ -247,9 +290,10 @@ class ProstExperiment(Experiment):
         be parsed by the ProstPlanner class in the search component of
         the planner. See the ``PROST Planner Options`` section in the
         output of running ``prost.py`` for available options. The list
-        is always prepended with ``["-s", "1", "-ram", "3670016"]``.
+        is always prepended with ``["-s", "1", "-ram", "3145728"]``.
         Specifying a custom seed or RAM limit overrides these default
-        values.
+        values. If a custom memory limit is specified, make sure it is no 
+        larger than the *memory_limit* of this class.
 
         Example experiment setup to test Prost2011 in the latest revision 
         on the master branch:
@@ -268,7 +312,7 @@ class ProstExperiment(Experiment):
             logging.critical("Config names must be unique: {}".format(name))
         build_options = build_options or []
         parser_options = parser_options or []
-        driver_options = ["-s", "1", "-ram", "3670016",] + (driver_options or [])
+        driver_options = ["-s", "1", "-ram", str((self.memory_limit-512)*1024),] + (driver_options or [])
         config = ProstAlgorithm(
             name,
             CachedProstRevision(repo, rev, build_options),
@@ -344,12 +388,12 @@ class ProstExperiment(Experiment):
         port = self.initial_port
         for config in self.configs.values():
             for task in self.suites:
+                run_time = int(task.horizon * self.num_runs * self.time_per_step)
                 rddlsim_run_time = 0
                 if self.rddlsim_enforces_runtime:
-                    rddlsim_run_time = int(
-                        task.horizon * self.num_runs * self.time_per_step
-                    )
-                self.add_run(ProstRun(self, config, task, port, rddlsim_run_time))
+                    rddlsim_run_time = run_time
+                run_time += self.time_buffer
+                self.add_run(ProstRun(self, config, task, port, rddlsim_run_time, run_time))
                 port += 1
 
     def get_all_attributes(self):

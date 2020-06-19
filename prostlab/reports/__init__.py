@@ -218,7 +218,7 @@ class PlanningReport(Report):
     def _compute_ipc_scores(self):
         max_rewards = dict()
         for run in self.props.values():
-            if run["max_reward"] is None:
+            if run["max_reward"] is None and "average_reward" in run:
                 reward = run["average_reward"]
                 domain_name = run["domain"]
                 if domain_name not in max_rewards:
@@ -232,7 +232,7 @@ class PlanningReport(Report):
                 run["max_reward"] = max_reward
                 min_reward = run["min_reward"]
                 span = max_reward - min_reward
-                if span > 0:
+                if span > 0 and "average_reward" in run:
                     reward = run["average_reward"]                
                     run["ipc_score"] =  (reward - min_reward) / (max_reward - min_reward)
                 else:
