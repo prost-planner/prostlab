@@ -210,6 +210,34 @@ class PlanningReport(Report):
                     return pattern.copy(attr)
         return super()._prepare_attribute(attr)
 
+    def _apply_filter(self):
+        super()._apply_filter()
+        if "ipc_score" in self.attributes:
+            self._compute_ipc_scores()
+
+    def _compute_ipc_scores(self):
+        max_rewards = dict()
+        for run in self.props.values():
+            if run["max_reward"] is None:
+                reward = run["average_reward"]
+                domain_name = run["domain"]
+                if domain_name not in max_rewards:
+                    max_rewards[domain_name] = reward
+                else:
+                    max_rewards[domain_name] = max(max_rewards[domain_name], reward)
+        for run in self.props.values():
+            domain_name = run["domain"]
+            if domain_name in max_rewards:
+                max_reward = max_rewards[domain_name]
+                run["max_reward"] = max_reward
+                min_reward = run["min_reward"]
+                span = max_reward - min_reward
+                if span > 0:
+                    reward = run["average_reward"]                
+                    run["ipc_score"] =  (reward - min_reward) / (max_reward - min_reward)
+                else:
+                    run["ipc_score"] = 0.0
+
     def _scan_data(self):
         self._scan_planning_data()
         super()._scan_data()
