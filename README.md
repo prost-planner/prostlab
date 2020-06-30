@@ -7,21 +7,29 @@ documentation](https://lab.readthedocs.io) is also relevant for Prost Lab.
 
 ## Setting up Prost Lab
 
-To set up Prost Lab, perform the following steps:
+To set up the virtual environment for Prost Lab in the directory
+`/path/to/prostlab-venv`, perform the following steps:
 
- * `git clone https://github.com/prost-planner/prostlab.git /path/to/prostlab` (clone the repo)
- * `cd /path/to/prostlab` (switch to directory containing Prost Lab)
- * `python3 -m venv .venv` (create virtual environment)
- * `source .venv/bin/activate` (activate the virtual environment)
+ * `cd /path/to/prostlab-venv` (switch to directory)
+ * `python3 -m venv prostlab-venv` (create virtual environment)
+ * `source prostlab-venv/bin/activate` (activate the virtual environment)
  * `pip install -U pip` (upgrade pip)
- * `pip install ./` (install prostlab)
+ * `pip install prostlab` (install prostlab)
 
-You also need to define two environment variables to perform experiments
-with Prost Lab:
+If you want to install the latest development version and/or need to
+change Prost Lab itself, you can clone the Prost Lab repository and
+install it in the virtual environment:
 
- * PROST_BENCHMARKS points to the testbed/benchmarks directory of your Prost clone
+ * `git clone https://github.com/prost-planner/prostlab.git` (clone the repo)
+ * `cd prostlab` (switch into prostlab directory)
+ * `pip install --editable ./` (install prostlab)
+
+In both cases, you need to define two environment variables to perform
+experiments with Prost Lab:
+
+ * PROST_BENCHMARKS points to the testbed/benchmarks directory of your prost clone
  * RDDLSIM_ROOT points to the root directory of rddlsim
-
+ 
 ## Performing an experiment
 
 See [the Prost
