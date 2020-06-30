@@ -8,7 +8,7 @@ with open("README.md", "r") as f:
 setup(
     name="prostlab",
     version="1.0",
-    description="Use lab for experiments with the Prost planner",
+    description="Perform experiments with the Prost planner",
     long_description=long_description,
     long_description_content_type="text/markdown",
     keywords="experiment lab Prost",
@@ -19,6 +19,7 @@ setup(
     packages=["prostlab", "prostlab.parsers", "prostlab.reports"],
     classifiers=[
         "Development Status :: 5 - Production/Stable",
+        "Environment :: Console",
         "Intended Audience :: Science/Research",
         "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
         "Programming Language :: Python :: 3",
