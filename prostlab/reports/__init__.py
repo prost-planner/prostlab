@@ -221,22 +221,30 @@ class PlanningReport(Report):
             if run["max_reward"] is None and "average_reward" in run:
                 reward = run["average_reward"]
                 domain_name = run["domain"]
-                if domain_name not in max_rewards:
-                    max_rewards[domain_name] = reward
+                problem_name = run["problem"]
+                if (domain_name, problem_name) not in max_rewards:
+                    max_rewards[(domain_name, problem_name)] = reward
                 else:
-                    max_rewards[domain_name] = max(max_rewards[domain_name], reward)
+                    max_rewards[(domain_name, problem_name)] = max(max_rewards[(domain_name, problem_name)], reward)
         for run in self.props.values():
             domain_name = run["domain"]
-            if domain_name in max_rewards:
-                max_reward = max_rewards[domain_name]
-                run["max_reward"] = max_reward
-                min_reward = run["min_reward"]
+            problem_name = run["problem"]
+            if (domain_name, problem_name) in max_rewards:
+                run["max_reward"] = max_rewards[(domain_name, problem_name)]
+
+            if "average_reward" not in run:
+                run["ipc_score"] = 0.0
+                continue
+            avg_reward = run["average_reward"]
+            min_reward = run["min_reward"]
+            max_reward = run["max_reward"]
+            dist = avg_reward - min_reward
+            if dist > 0.0:
                 span = max_reward - min_reward
-                if span > 0 and "average_reward" in run:
-                    reward = run["average_reward"]                
-                    run["ipc_score"] =  (reward - min_reward) / (max_reward - min_reward)
-                else:
-                    run["ipc_score"] = 0.0
+                assert span > 0.0
+                run["ipc_score"] =  dist / span
+            else:
+                run["ipc_score"] = 0.0
 
     def _scan_data(self):
         self._scan_planning_data()
