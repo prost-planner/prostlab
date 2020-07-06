@@ -54,17 +54,11 @@ class ProstRun(Run):
         self.task = task
         self.port = port
         self.rddlsim_runtime = rddlsim_runtime
-        self.use_ipc2018_parser = int(self.task.domain.endswith("2018"))
 
         self._set_properties()
 
         self.add_resource("", self.task.domain_file, "domain.rddl", symlink=True)
         self.add_resource("", self.task.problem_file, "problem.rddl", symlink=True)
-
-        parser_opts = [
-            "-ipc2018",
-            str(self.use_ipc2018_parser),
-        ] + self.config.parser_options
 
         self.add_command(
             "planner",
@@ -78,7 +72,7 @@ class ProstRun(Run):
                 str(self.experiment.num_runs),
                 "{" + _get_planner_resource_name(config.cached_revision) + "}",
                 self.task.problem_name,
-                " ".join(parser_opts),
+                " ".join(self.config.parser_options),
                 " ".join(self.config.driver_options),
                 self.config.search_engine_desc,
             ],
@@ -115,7 +109,6 @@ class ProstRun(Run):
 
         self.set_property("port", self.port)
         self.set_property("enforced_time_limit", self.rddlsim_runtime)
-        self.set_property("use_ipc2018_parser", self.use_ipc2018_parser)
 
         self.set_property("id", [self.config.name, self.task.domain, str(self.task.problem)])
 
@@ -180,7 +173,7 @@ class ProstExperiment(Experiment):
         rddlsim_enforces_runtime=False,
         revision_cache=None,
         time_buffer=300,
-        memory_limit=3.5*1024,
+        memory_limit=int(3.5*1024),
         soft_stdout_limit=10 * 1024,
         hard_stdout_limit=20 * 1024,
         soft_stderr_limit=64,
